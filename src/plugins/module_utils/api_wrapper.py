@@ -211,3 +211,37 @@ class APICryptokeyWrapper(APIWrapper):
         return self.raw_api.deleteCryptokey(
             server_id=self.server_id, zone_id=self.zone_id, cryptokey_id=self.cryptokey_id
         ).result()
+
+class APINetworkWrapper(APIWrapper):
+    @api_exception_handler
+    def createNetwork(self, **kwargs):  # noqa: N802
+        return self.raw_api.createNetwork(server_id=self.server_id, **kwargs).result()
+
+    @api_exception_handler
+    def getNetwork(self, **kwargs):  # noqa: N802
+        return self.raw_api.getNetwork(server_id=self.server_id, **kwargs).result()
+
+    @api_exception_handler
+    def setNetwork(self, **kwargs):  # noqa: N802
+        return self.raw_api.setNetwork(server_id=self.server_id, **kwargs).result()
+
+    @api_exception_handler
+    def listNetworks(self):  # noqa: N802
+        return self.raw_api.listNetworks(server_id=self.server_id).result()
+
+class APIViewsWrapper(APIWrapper):
+    @api_exception_handler
+    def addToView(self, **kwargs):  # noqa: N802
+        return self.raw_api.addToView(server_id=self.server_id, **kwargs).result()
+
+    @api_exception_handler
+    def deleteFromView(self, **kwargs):  # noqa: N802
+        return self.raw_api.deleteFromView(server_id=self.server_id, **kwargs).result()
+
+    @api_exception_handler
+    def listView(self, **kwargs):  # noqa: N802
+        return self.raw_api.listView(server_id=self.server_id, **kwargs).result()
+
+    @api_exception_handler
+    def listViews(self):  # noqa: N802
+        return self.raw_api.listViews(server_id=self.server_id).result()
