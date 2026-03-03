@@ -7,7 +7,7 @@ from urllib.parse import urlparse
 
 
 class APIWrapper:
-    def __init__(self, *, module, result, object_type):
+    def __init__(self, *, module, result, object_type, config=None):
         self.module = module
         self.server_id = module.params["server_id"]
         self.result = result
@@ -50,6 +50,7 @@ class APIWrapper:
                 "Accept": "application/json",
                 "X-API-Key": module.params["api_key"],
             },
+            config=config,
         )
         self.raw_api = getattr(full_api, object_type)
 

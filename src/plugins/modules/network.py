@@ -143,11 +143,13 @@ def main():
     if module.check_mode:
         module.exit_json(**result)
 
-    # create an object to proxy the raw API object
-    # and curry the server_id into all API calls
-    # automatically, along with handling
-    # predictable exceptions
-    api_client = APINetworkWrapper(module=module, result=result, object_type="networks")
+    # Because of https://github.com/PowerDNS/pdns/issues/16941, using swagger spec
+    # for setNetwork fails.
+    # Only solution is to disable the validation and force passing a json body,
+    # which can only be done when instantiating the client.
+    api_client = APINetworkWrapper(
+        module=module, result=result, object_type="networks", config={"validate_requests": False}
+    )
 
     result["network"] = network
     result["exists"] = False
@@ -172,7 +174,7 @@ def main():
 
     # if absence was requested, set empty view and exit
     if state == "absent":
-        api_client.setNetwork(ip=ip, prefixlen=prefixlen, view="")
+        api_client.setNetwork(ip=ip, prefixlen=prefixlen, view={"view": ""})
         result["changed"] = True
         module.exit_json(**result)
 
@@ -184,7 +186,8 @@ def main():
 
     if network_info is None or network_info["view"] != view:
         # Network is missing, or with wrong view
-        api_client.setNetwork(ip=ip, prefixlen=prefixlen, view=view)
+        # The API expect a dict in the body despite the swagger definition
+        api_client.setNetwork(ip=ip, prefixlen=prefixlen, view={"view": view})
         result["view"] = view
         result["exists"] = True
         result["changed"] = True
