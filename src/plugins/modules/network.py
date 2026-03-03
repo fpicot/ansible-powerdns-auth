@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 # -*- coding: utf-8 -*-
 
+import ipaddress
 import sys
 
 from ansible.module_utils.basic import AnsibleModule
@@ -44,7 +45,8 @@ options:
     default: 'present'
   network:
     description:
-      - CIDR of the network to be managed.
+      - CIDR of the network to be managed. Must be a valid network address,
+        wihout host bits set.
     type: str
     required: true
   view:
@@ -125,12 +127,18 @@ def main():
     state = module.params["state"]
     network = module.params["network"]
 
-    ip, _, prefixlen = network.partition('/')
     network_info = None
 
     result = {
         "changed": False,
     }
+
+    try:
+        network_obj = ipaddress.ip_network(network)
+        ip = str(network_obj.network_address)
+        prefixlen = str(network_obj.prefixlen)
+    except ValueError:
+        module.fail_json(msg=f"{network} doesn't appear to be a valid network", **result)
 
     if module.check_mode:
         module.exit_json(**result)
@@ -144,7 +152,9 @@ def main():
     result["network"] = network
     result["exists"] = False
 
-    partial_network_info = [k for k in api_client.listNetworks()["networks"] if k["network"] == network]
+    partial_network_info = [
+        k for k in api_client.listNetworks()["networks"] if k["network"] == network
+    ]
     if len(partial_network_info) == 0:
         if state in ("exists", "absent"):
             # exit as there is nothing left to do
@@ -162,7 +172,7 @@ def main():
 
     # if absence was requested, set empty view and exit
     if state == "absent":
-        api_client.setNetwork(ip=ip, prefixlen=prefixlen, view='')
+        api_client.setNetwork(ip=ip, prefixlen=prefixlen, view="")
         result["changed"] = True
         module.exit_json(**result)
 

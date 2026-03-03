@@ -212,6 +212,7 @@ class APICryptokeyWrapper(APIWrapper):
             server_id=self.server_id, zone_id=self.zone_id, cryptokey_id=self.cryptokey_id
         ).result()
 
+
 class APINetworkWrapper(APIWrapper):
     @api_exception_handler
     def createNetwork(self, **kwargs):  # noqa: N802
@@ -228,6 +229,7 @@ class APINetworkWrapper(APIWrapper):
     @api_exception_handler
     def listNetworks(self):  # noqa: N802
         return self.raw_api.listNetworks(server_id=self.server_id).result()
+
 
 class APIViewsWrapper(APIWrapper):
     @api_exception_handler
